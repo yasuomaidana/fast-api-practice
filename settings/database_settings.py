@@ -7,13 +7,14 @@ class DatabaseSettings(BaseSettings):
     port: int = 5432
     user: str = ""
     password: str = ""
+    name: str = "testing_db"
     
     @property
     def dsn(self):
         if self.type == "sqlite":
             return f"{self.type}:///{self.host}"
         auth = f"{self.user}:{self.password}@" if self.user and self.password else ""
-        return f"{self.type}://{auth}{self.host}:{self.port}"
+        return f"{self.type}://{auth}{self.host}:{self.port}/{self.name}"
     
 
     model_config = SettingsConfigDict(env_prefix='database_')
