@@ -1,0 +1,55 @@
+erDiagram
+    Invoice {
+        int invoiceId
+        int placeId
+        int paymentMethodId
+        int[] productsId
+        int[] taxesId
+        date invoiceDate
+    }
+    PaymentMethod{
+        int paymentMethodId
+        string paymentMethodName
+    }
+    Product {
+        int productId
+        int productNameId
+        int productTypeId
+        double price
+    }
+    ProductName {
+        int productNameId
+        int productTypeId
+        string productTypeName
+    }
+    ProductType {
+        int productTypeId
+        string productTypeName
+    }
+    Place {
+        int placeId
+        string placeName
+        int placeTypeId
+    }
+    PlaceType {
+        int placeTypeId
+        string placeTypeName
+    }
+    TaxesType {
+        int taxTypeId
+        string taxTypeName
+    }
+    Taxes {
+        int taxId
+        int taxTypeId
+        double taxValue
+    }
+
+    Invoice ||--o{ Product: "contains"
+    Product ||--|| ProductName: "has"
+    Product ||--|| ProductType: "has"
+    Invoice ||--o{ Place: "issued"
+    Place ||--|| PlaceType: "has"
+    Invoice ||--o{ Taxes: "has"
+    Taxes ||--|| TaxesType: "has"
+    Invoice ||--|| PaymentMethod: "paid with"
