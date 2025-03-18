@@ -30,7 +30,7 @@ To see all the explanation [see](https://stackoverflow.com/questions/25540711/do
    - For TinySQL we are going to use the `sqlite` configuration. The default alembic configuration.
    - For Postgres, we are going to use the `postgres` configuration. We are going to create a new file `alembic.ini` with
    ```bash 
-   alembic -c postgres.init init postgres.migrations
+   alembic -c postgres.alembic.ini init postgres.migrations
    ```
 4. Configure the `alembic.ini` file with the correct connection string.
    1. Add the imports to `script.py.mako` file
@@ -56,6 +56,8 @@ To see all the explanation [see](https://stackoverflow.com/questions/25540711/do
        config = context.config
        config.set_main_option('sqlalchemy.url', database_settings.dsn)
        assert database_settings.type == "sqlite"
+      
+       target_metadata = models.Base.metadata
        ```
       The assert statement is used to ensure we are using the correct database type.
        > You can also hardcode the value in the `alembic.ini` file.

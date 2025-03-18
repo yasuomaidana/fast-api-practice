@@ -12,3 +12,7 @@ run-db-viewer:
       -e "PGADMIN_DEFAULT_EMAIL=a@b.com" \
       -e "PGADMIN_DEFAULT_PASSWORD=aa" \
       -d dpage/pgadmin4
+update-postgresql:
+	source .zshrc && alembic -c postgres.alembic.ini revision --autogenerate -m $(message)
+upgrade-postgresql:
+	source .zshrc && alembic -c postgres.alembic.ini upgrade head
