@@ -1,6 +1,6 @@
 from functools import wraps
 
-from sqlmodel import Session
+from sqlmodel import Session, SQLModel
 
 
 def with_session(func):
@@ -14,6 +14,21 @@ def with_session(func):
             session.close()
             return result
         return func(self, *args, **kwargs)
+
+    return wrapper
+
+
+def transactional(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        session = kwargs.get('session', None)
+        if session is None:
+            with Session(self.engine) as session:
+                kwargs['session'] = session
+                result = func(self, *args, **kwargs)
+                session.commit()
+            session.close()
+            return result
     return wrapper
 
 
@@ -28,4 +43,5 @@ def create_entity(func):
                 session.close()
             return to_store
         func(self, to_store, session)
+
     return wrapper
