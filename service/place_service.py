@@ -1,9 +1,9 @@
 from sqlalchemy import Engine
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from dto.create_place_dto import CreatePlaceDto
 from models import Place
-from service.utils import with_session
+from service.utils import with_session, create_entity, transactional
 from settings.database_settings import engine
 
 
@@ -21,13 +21,28 @@ class PlaceService:
         self.engine: Engine = _engine
 
     @with_session
-    def get_place(self, place_id: int, session: Session = None):
+    def get_place_by_id(self, place_id: int, session: Session = None):
         return session.get(Place, place_id)
-    
+
     @with_session
-    def create_place(self, place: CreatePlaceDto, session: Session = None):
+    def get_places(self, session: Session = None):
+        statement = select(Place)
+        return session.exec(statement).all()
+
+    def create_from_dto(self, place: CreatePlaceDto):
         place = place.to_place_model()
-        session.add(place)
-        session.commit()
-        session.refresh(place)
-        return place
+        return self._create_place(place)
+
+    @transactional
+    def delete_place_by_id(self, place_id: int, session: Session = None):
+        place = self.get_place_by_id(place_id, session=session)
+        if isinstance(place, Place):
+            self._delete_place(place, session=session)
+
+    @with_session
+    def _delete_place(self, place: Place, session: Session = None):
+        return session.delete(place)
+
+    @create_entity
+    def _create_place(self, place: Place, session: Session = None):
+        return session.add(place)
