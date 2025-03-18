@@ -10,14 +10,15 @@ from settings.database_settings import engine
 class PlaceService:
     _instance = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, _engine: Engine = engine):
         if cls._instance is None:
             cls._instance = super(PlaceService, cls).__new__(cls)
+            cls._instance.engine = _engine
 
         return cls._instance
-    
-    def __init__(self):
-        self.engine: Engine = engine
+
+    def __init__(self, _engine: Engine = engine):
+        self.engine: Engine = _engine
 
     @with_session
     def get_place(self, place_id: int, session: Session = None):
