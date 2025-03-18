@@ -9,7 +9,7 @@ class TestDatabaseSettings(TestCase):
 
     def test_default_dsn(self):
         database_settings = DatabaseSettings()
-        self.assertEqual(database_settings.dsn, "sqlite:///localhost")
+        self.assertEqual(database_settings.dsn, "sqlite:///testing.db")
 
     @mock.patch.dict(os.environ, {"DATABASE_TYPE": "postgresql", "DATABASE_NAME":"test"}, clear=True)
     def test_postgres_no_auth_dsn(self):
