@@ -1,7 +1,4 @@
 from enum import Enum
-from typing import Optional
-
-from sqlmodel import SQLModel, Field, Relationship
 
 
 class ProductType(Enum):
@@ -66,26 +63,3 @@ class ProductType(Enum):
     RENT = "renta"
     SOFTWARE = "software"
     SUBSCRIPTION = "suscripción"
-
-
-class ProductName(SQLModel, table=True):
-    __tablename__ = "product_name"
-    id: Optional[int] = Field(primary_key=True)
-    name: str
-
-
-class Product(SQLModel, table=True):
-    id: Optional[int] = Field(primary_key=True)
-    productNameId: int = Field(foreign_key="product_name.id")
-    productType: ProductType
-    price: float
-    
-
-class PurchasedItem(SQLModel, table=True):
-    __tablename__ = "purchased_item"
-    id: Optional[int] = Field(primary_key=True)
-    productId: int = Field(foreign_key="product.id")
-    quantity: int
-    invoiceId: Optional[int] = Field(default=None, foreign_key="invoice.id")
-    
-    product: Product = Relationship(back_populates="purchased_items")

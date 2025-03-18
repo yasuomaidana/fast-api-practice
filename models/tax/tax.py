@@ -1,12 +1,8 @@
-from enum import Enum
 from typing import Optional
 
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 
-
-class TaxType(Enum):
-    VAT = "VAT"
-    INCOME_TAX = "ISR"
+from .tax_type import TaxType
 
 
 class Tax(SQLModel, table=True):
@@ -14,4 +10,5 @@ class Tax(SQLModel, table=True):
     tax_type: TaxType
     value: float
     invoiceId: Optional[int] = Field(default=TaxType.VAT, foreign_key="invoice.id")
-   
+    
+    invoice: "Invoice" = Relationship(back_populates="taxes")

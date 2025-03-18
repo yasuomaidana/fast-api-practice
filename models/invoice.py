@@ -12,6 +12,6 @@ class Invoice(SQLModel, table=True):
     
     products: List["PurchasedItem"] = Relationship(back_populates="invoice")
     taxes: List["Tax"] = Relationship(back_populates="invoice")
-    paymentMethod: "PaymentMethod" = Relationship(back_populates="invoices")
+    payment_method: Optional["PaymentMethod"] = Relationship(back_populates="invoices")
     place: "Place" = Relationship(back_populates="invoices")
     

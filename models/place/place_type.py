@@ -1,7 +1,4 @@
 from enum import Enum
-from typing import Optional
-
-from sqlmodel import SQLModel, Field
 
 
 class PlaceType(Enum):
@@ -14,10 +11,3 @@ class PlaceType(Enum):
     STORE = "store"
     SCHOOL = "school"
     PHARMACY = "pharmacy"
-    
-
-
-class Place(SQLModel, table=True):
-    id: Optional[int] = Field(primary_key=True)
-    name: str
-    place_type: PlaceType
