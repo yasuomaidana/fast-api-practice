@@ -48,7 +48,7 @@ erDiagram
     Invoice ||--o{ Product: "contains"
     Product ||--|| ProductName: "has"
     Product ||--|| ProductType: "has"
-    Invoice ||--o{ Place: "issued"
+    Invoice ||--o| Place: "issued"
     Place ||--|| PlaceType: "has"
     Invoice ||--o{ Taxes: "has"
     Taxes ||--|| TaxesType: "has"
