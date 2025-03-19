@@ -1,8 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from starlette.status import HTTP_204_NO_CONTENT
 
-# from starlette.status import HTTP_204_NO_CONTENT
-
 from dto.create_place_dto import CreatePlaceDto
 from models import Place
 from service import PlaceService
