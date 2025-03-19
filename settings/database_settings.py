@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlmodel import SQLModel, create_engine
+from sqlmodel import create_engine
 
 
 class DatabaseSettings(BaseSettings):
@@ -9,17 +9,17 @@ class DatabaseSettings(BaseSettings):
     user: str = ""
     password: str = ""
     name: str = "testing_db"
-    
+
     @property
     def dsn(self):
         if self.type == "sqlite":
-            name = self.name.replace("_",".") if "_db" in self.name else self.name
+            name = self.name.replace("_", ".") if "_db" in self.name else self.name
             return f"{self.type}:///{name}"
         auth = f"{self.user}:{self.password}@" if self.user and self.password else ""
         return f"{self.type}://{auth}{self.host}:{self.port}/{self.name}"
-    
 
     model_config = SettingsConfigDict(env_prefix='database_')
+
 
 database_settings = DatabaseSettings()
 
