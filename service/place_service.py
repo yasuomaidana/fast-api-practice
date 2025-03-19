@@ -1,9 +1,12 @@
+from typing import Union
+
 from sqlalchemy import Engine
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from dto.create_place_dto import CreatePlaceDto
 from models import Place
-from service.utils import with_session, create_entity, transactional
+from repository import PlaceRepository
+from repository.utils import transactional, with_session
 from settings import engine
 
 
@@ -14,35 +17,23 @@ class PlaceService:
         if cls._instance is None:
             cls._instance = super(PlaceService, cls).__new__(cls)
             cls._instance.engine = _engine
-
+            cls._instance.place_repository = PlaceRepository(_engine)
         return cls._instance
 
-    def __init__(self, _engine: Engine = engine):
-        self.engine: Engine = _engine
+    def get_all(self, session: Session = None):
+        return self.place_repository.get_places(session=session)
 
-    @with_session
-    def get_place_by_id(self, place_id: int, session: Session = None):
-        return session.get(Place, place_id)
-
-    @with_session
-    def get_places(self, session: Session = None):
-        statement = select(Place)
-        return session.exec(statement).all()
-
-    def create_from_dto(self, place: CreatePlaceDto):
-        place = place.to_place_model()
-        return self._create_place(place)
+    def create(self, place: Union[Place, CreatePlaceDto], session: Session = None):
+        if isinstance(place, CreatePlaceDto):
+            place = place.to_place_model()
+        return self.place_repository.create_place(place, session=session)
 
     @transactional
-    def delete_place_by_id(self, place_id: int, session: Session = None):
-        place = self.get_place_by_id(place_id, session=session)
+    def delete(self, place: Union[Place, int], session: Session = None):
+        if isinstance(place, int):
+            place = self.place_repository.get_place_by_id(place, session=session)
         if isinstance(place, Place):
-            self._delete_place(place, session=session)
-
-    @with_session
-    def _delete_place(self, place: Place, session: Session = None):
-        return session.delete(place)
-
-    @create_entity
-    def _create_place(self, place: Place, session: Session = None):
-        return session.add(place)
+            self.place_repository.delete_place(place, session=session)
+    
+    def find_by_id(self, place_id: int, session: Session = None):
+        return self.place_repository.get_place_by_id(place_id, session=session)

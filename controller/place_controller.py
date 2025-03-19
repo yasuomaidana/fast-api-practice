@@ -12,28 +12,28 @@ place_router = APIRouter(prefix="/place", tags=["Place"])
 async def create_place(place:CreatePlaceDto):
     try:
         place_service = PlaceService()
-        return place_service.create_from_dto(place)
+        return place_service.create(place)
     except IntegrityError:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Place already exists")
 
 @place_router.get("")
 async def get_places():
     place_service = PlaceService()
-    return place_service.get_places()
+    return place_service.get_all()
 
 @place_router.get("/{place_id}", response_model=Place,responses={404: {"description": "Place not found"}})
 async def get_place(place_id: int):
     place_service = PlaceService()
-    place = place_service.get_place_by_id(place_id)
+    place = place_service.find_by_id(place_id)
     if not place:
         raise HTTPException(status_code=404, detail="Place not found")
-    return place_service.get_place_by_id(place_id)
+    return place
 
 @place_router.delete("/{place_id}", status_code=HTTP_204_NO_CONTENT,
                      responses={404: {"description": "Place not found"}, 204: {"description": "Item deleted"}})
 async def delete_place(place_id: int):
     place_service = PlaceService()
-    place = place_service.get_place_by_id(place_id)
+    place = place_service.find_by_id(place_id)
     if not place:
         raise HTTPException(status_code=404, detail="Place not found")
-    place_service.delete_place_by_id(place_id)
+    place_service.delete(place)

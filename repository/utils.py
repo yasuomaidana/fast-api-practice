@@ -29,6 +29,7 @@ def transactional(func):
                 session.commit()
             session.close()
             return result
+
     return wrapper
 
 
