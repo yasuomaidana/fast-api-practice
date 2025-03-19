@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from controller.invoice_controller import invoice_router
-from controller.place_controller import place_router
+
+from controller import invoice_router, place_router, auth_router
 
 app = FastAPI()
 app.include_router(invoice_router)
