@@ -19,7 +19,7 @@ class UserService:
         return cls._instance
 
     def find_account(self, username: str):
-        return self.auth_handler.find_account(username)
+        return self.account_repository.find_by_username(username)
     
     def register(self, create_user_dto:CreateUserDto):
         create_user_dto.password = self.auth_handler.get_password_hash(create_user_dto.password)
