@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlmodel import create_engine
 
 
 class DatabaseSettings(BaseSettings):
@@ -19,10 +18,3 @@ class DatabaseSettings(BaseSettings):
         return f"{self.type}://{auth}{self.host}:{self.port}/{self.name}"
 
     model_config = SettingsConfigDict(env_prefix='database_')
-
-
-database_settings = DatabaseSettings()
-
-print(f"Database settings: \t{database_settings.model_dump(mode="json")}")
-print("Database DSN: \t", database_settings.dsn)
-engine = create_engine(database_settings.dsn, echo=True)

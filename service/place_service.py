@@ -4,7 +4,7 @@ from sqlmodel import Session, select
 from dto.create_place_dto import CreatePlaceDto
 from models import Place
 from service.utils import with_session, create_entity, transactional
-from settings.database_settings import engine
+from settings import engine
 
 
 class PlaceService:
