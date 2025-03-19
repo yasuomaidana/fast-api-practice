@@ -5,6 +5,7 @@ from controller import invoice_router, place_router, auth_router
 app = FastAPI()
 app.include_router(invoice_router)
 app.include_router(place_router)
+app.include_router(auth_router)
 
 
 @app.get("/")
