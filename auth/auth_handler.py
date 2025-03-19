@@ -33,7 +33,7 @@ class AuthHandler:
     def decode_token(self, token):
         try:
             payload = jwt.decode(token, self.secret, algorithms=[self.algorithm])
-            return payload['sub']
+            return AuthPayload(**payload)
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Token has expired")
         except jwt.InvalidTokenError:
