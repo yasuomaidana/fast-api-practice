@@ -3,11 +3,14 @@ from enum import Enum
 
 class PlaceType(Enum):
     BAR = "bar"
-    RESTAURANT = "restaurant"
+    RESTAURANT = "restaurante"
     HOTEL = "hotel"
-    CONVENIENCE_STORE = "convenience_store"
-    GOVERNMENT = "government"
+    CONVENIENCE_STORE = "tienda_de_conveniencia"
+    GOVERNMENT = "gobierno"
     HOSPITAL = "hospital"
-    STORE = "store"
-    SCHOOL = "school"
-    PHARMACY = "pharmacy"
+    STORE = "tienda"
+    SCHOOL = "escuela"
+    PHARMACY = "farmacia"
+    CINEMA = "cine"
+    
+    
