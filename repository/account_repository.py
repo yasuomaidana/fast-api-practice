@@ -24,7 +24,7 @@ class AccountRepository:
         return session.get(Account, account_id)
     
     @with_session
-    def find_by_username(self, username: str, session: Session = None):
+    def find_by_username(self, username: str, session: Session = None) -> Account | None:
         return session.exec(select(Account).where(Account.username == username)).first()
     
     @with_session
