@@ -9,10 +9,16 @@ from settings.security.security_settings import SecuritySettings
 
 
 class AuthHandler:
+    _instance = None
     security = HTTPBearer()
     password_context = CryptContext(schemes=["bcrypt"])
     secret = SecuritySettings().secret_key
     algorithm = SecuritySettings().algorithm
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(AuthHandler, cls).__new__(cls)
+        return cls._instance
 
     def get_password_hash(self, password):
         return self.password_context.hash(password)
