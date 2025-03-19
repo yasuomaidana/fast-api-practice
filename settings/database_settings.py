@@ -26,9 +26,3 @@ database_settings = DatabaseSettings()
 print(f"Database settings: \t{database_settings.model_dump(mode="json")}")
 print("Database DSN: \t", database_settings.dsn)
 engine = create_engine(database_settings.dsn, echo=True)
-
-
-def create_db_and_tables():
-    print("Creating tables")
-    import models
-    SQLModel.metadata.create_all(engine)

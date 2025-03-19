@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from controller.invoice_controller import invoice_router
 from controller.place_controller import place_router
-from settings.database_settings import create_db_and_tables
 
 app = FastAPI()
 app.include_router(invoice_router)
@@ -22,6 +21,4 @@ async def wait_message():
 
 if __name__ == "__main__":
     import uvicorn
-
-    create_db_and_tables()
     uvicorn.run(app, host="localhost", port=8000)
