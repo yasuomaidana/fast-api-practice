@@ -26,8 +26,8 @@ class AuthHandler:
     def verify_password(self, plain_password, hashed_password):
         return self.password_context.verify(plain_password, hashed_password)
 
-    def encode_token(self, user_id):
-        payload = AuthPayload(sub=user_id)
+    def encode_token(self, username:str):
+        payload = AuthPayload(sub=username)
         return jwt.encode(dict(payload), self.secret, algorithm=self.algorithm)
 
     def decode_token(self, token):

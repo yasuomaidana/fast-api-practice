@@ -28,5 +28,5 @@ async def login(login_input: LoginDto):
     verified = user_service.auth_handler.verify_password(login_input.password, user.password)
     if not verified:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    token = user_service.auth_handler.encode_token(user.id)
+    token = user_service.auth_handler.encode_token(user.username)
     return {"token": token}
