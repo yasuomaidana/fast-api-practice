@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from starlette.status import HTTP_204_NO_CONTENT
+from sqlalchemy.exc import IntegrityError
+from starlette.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST
 
 from dto.create_place_dto import CreatePlaceDto
 from models import Place
@@ -7,10 +8,13 @@ from service import PlaceService
 
 place_router = APIRouter(prefix="/place", tags=["Place"])
 
-@place_router.post("", response_model=Place)
+@place_router.post("", response_model=Place, responses={400: {"description": "Place already exists"}})
 async def create_place(place:CreatePlaceDto):
-    place_service = PlaceService()
-    return place_service.create_from_dto(place)
+    try:
+        place_service = PlaceService()
+        return place_service.create_from_dto(place)
+    except IntegrityError:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Place already exists")
 
 @place_router.get("")
 async def get_places():
