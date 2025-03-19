@@ -1,5 +1,6 @@
 from auth import AuthHandler
 from dto.user.create_user_dto import CreateUserDto
+from models import Account
 from repository.account_repository import AccountRepository
 from settings import engine
 
@@ -18,7 +19,7 @@ class UserService:
 
         return cls._instance
 
-    def find_account(self, username: str):
+    def find_account(self, username: str) -> Account | None:
         return self.account_repository.find_by_username(username)
     
     def register(self, create_user_dto:CreateUserDto):
