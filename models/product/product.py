@@ -1,5 +1,6 @@
 from typing import Optional
 
+from sqlalchemy import UniqueConstraint
 from sqlmodel import SQLModel, Field, Relationship
 
 from .product_type import ProductType
@@ -7,9 +8,10 @@ from .product_type import ProductType
 
 class Product(SQLModel, table=True):
     id: Optional[int] = Field(primary_key=True)
-    productNameId: int = Field(foreign_key="product_name.id")
+    name: str
     productType: ProductType
-    price: float
+    
+    __table_args__ = (UniqueConstraint("name","productType"),)
     
     purchased_item: "PurchasedItem" = Relationship(back_populates="product")
     
