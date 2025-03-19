@@ -27,6 +27,6 @@ class PlaceRepository:
         statement = select(Place)
         return session.exec(statement).all()
 
-    @with_session
+    @transactional
     def delete_place(self, place: Place, session: Session = None):
         return session.delete(place)
