@@ -19,10 +19,18 @@ async def nested():
 
 @nested_secured_router.get("")
 async def nested_secured():
+    """
+    Endpoint to get a secured nested message.
+    It does not do anything, but needs authentication.
+    This endpoint is protected by authentication.
+    """
     return {"nested": "Hey there"}
 
 @nested_secured_router.get("/message")
 async def nested_secured(user=Depends(AuthHandler().auth_wrapper)):
+    """
+    Endpoint to get a secured nested message. It retrieves the user from the token.
+    """
     return user
 
 
