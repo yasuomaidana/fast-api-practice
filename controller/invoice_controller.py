@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 from starlette.status import HTTP_403_FORBIDDEN
 
-from auth import AuthHandler
+from auth import AuthHandler, OAuthProvider
 
 invoice_router = APIRouter(prefix="/invoice", tags=["Invoice"])
 nested_router = APIRouter(prefix="/nested", tags=["Invoice", "Nested"])
@@ -15,6 +15,10 @@ nested_secured_router = APIRouter(prefix="/nested_secured", tags=["Invoice", "Ne
 @nested_router.get("")
 async def nested():
     return {"nested": "nested"}
+
+@nested_router.get("/oauth_secured")
+async def nested_oauth_secured(user=Depends(OAuthProvider().oauth2_scheme)):
+    return user
 
 
 @nested_secured_router.get("")
