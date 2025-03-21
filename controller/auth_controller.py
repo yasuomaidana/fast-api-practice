@@ -1,7 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.exc import IntegrityError
 from starlette.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
 
+from auth import OAuthProvider
 from dto.user.create_user_dto import CreateUserDto
 from dto.user.login_dto import LoginDto
 from service.user_service import UserService
@@ -30,3 +33,13 @@ async def login(login_input: LoginDto):
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     token = user_service.auth_handler.encode_token(user.username)
     return {"token": token}
+
+
+oauth_router = APIRouter(prefix="/oauth", tags=["OAuth2"])
+@oauth_router.post("/token")
+async def oauth_token(token: Annotated[OAuthProvider().password_request_form, Depends()]):
+    print(token.username, token.password)
+    return {"token": token}
+
+
+auth_router.include_router(oauth_router)
