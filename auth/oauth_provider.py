@@ -1,10 +1,11 @@
 from typing import Annotated
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2, OAuth2PasswordRequestForm
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from auth import AuthHandler
+from auth.auth_payload import AuthPayload
 from settings import SecuritySettings
 
 
@@ -21,7 +22,7 @@ class OAuthProvider:
             cls._instance.password_request_form = OAuth2PasswordRequestForm
         return cls._instance
 
-    async def get_user(self, token: Annotated[str, oauth2_scheme]) -> str:
+    async def get_user(self, token: Annotated[str, Depends(oauth2_scheme)]) -> AuthPayload:
         user = self.auth_handler.decode_token(token)
         if not user:
             raise HTTPException(
