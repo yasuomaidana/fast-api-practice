@@ -14,3 +14,4 @@ class Role(SQLModel, table=True):
     role: RoleType
 
     permissions: list["RolePermission"] = Relationship(back_populates="role")
+    accounts: list["AccountRole"] = Relationship(back_populates="role")
