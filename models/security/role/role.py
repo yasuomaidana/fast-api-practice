@@ -1,12 +1,8 @@
-from enum import Enum
 from typing import Optional
 
 from sqlmodel import SQLModel, Field, Relationship
 
-
-class RoleType(Enum):
-    ADMIN = "admin"
-    USER = "user"
+from .role_type import RoleType
 
 
 class Role(SQLModel, table=True):
