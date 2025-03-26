@@ -27,6 +27,6 @@ class RoleRepository:
         return session.add(role)
 
     @with_session
-    def get(self, role_type: RoleType, session: Session = None):
+    def get(self, role_type: RoleType, session: Session = None) -> Role | None:
         statement = select(Role).where(Role.role == role_type)
         return session.exec(statement).first()
