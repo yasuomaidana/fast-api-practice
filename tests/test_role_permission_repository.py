@@ -15,7 +15,7 @@ from settings import DatabaseSettings
 class TestRolePermissionRepository(TestCase):
 
     @classmethod
-    @mock.patch.dict(os.environ, {"DATABASE_NAME": ":memory:?shared_cache=True"}, clear=True)
+    @mock.patch.dict(os.environ, {"DATABASE_NAME": ":memory:"}, clear=True)
     def setUpClass(cls):
         cls.engine = create_engine(DatabaseSettings().dsn)
         SQLModel.metadata.create_all(cls.engine)
