@@ -12,7 +12,7 @@ from settings import DatabaseSettings
 class TestRoleRepository(TestCase):
     @mock.patch.dict(os.environ, {"DATABASE_NAME": ":memory:"}, clear=True)
     def setUp(self):
-        self.engine = create_engine(DatabaseSettings().dsn)
+        TestRoleRepository.engine = create_engine(DatabaseSettings().dsn)
         SQLModel.metadata.create_all(self.engine)
         self.repository = RoleRepository(self.engine)
 
@@ -23,6 +23,10 @@ class TestRoleRepository(TestCase):
             session.exec(statement)
             session.commit()
         session.commit()
+        
+    @classmethod
+    def tearDownClass(cls):
+        cls.engine.dispose()
         
     def test_create(self):
         role_type = RoleType.ADMIN

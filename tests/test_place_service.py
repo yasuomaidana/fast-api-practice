@@ -14,7 +14,7 @@ from settings.database_settings import DatabaseSettings
 class TestPlaceService(TestCase):
     @mock.patch.dict(os.environ, {"DATABASE_NAME": ":memory:"}, clear=True)
     def setUp(self):
-        self.engine = create_engine(DatabaseSettings().dsn)
+        TestPlaceService.engine = create_engine(DatabaseSettings().dsn)
         SQLModel.metadata.create_all(self.engine)
         
     def tearDown(self):
@@ -27,9 +27,9 @@ class TestPlaceService(TestCase):
         
 
     # Execute after all tests
-    # @class method
-    # def tearDownClass(cls):
-    #     print("Engine disposed")
+    @classmethod
+    def tearDownClass(cls):
+        cls.engine.dispose()
 
     def test__create_place(self):
         place_service = PlaceService(self.engine)

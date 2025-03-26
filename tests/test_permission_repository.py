@@ -13,7 +13,7 @@ class TestPermissionRepository(TestCase):
 
     @mock.patch.dict(os.environ, {"DATABASE_NAME": ":memory:"}, clear=True)
     def setUp(self):
-        self.engine = create_engine(DatabaseSettings().dsn)
+        TestPermissionRepository.engine = create_engine(DatabaseSettings().dsn)
         SQLModel.metadata.create_all(self.engine)
         self.repository = PermissionRepository(self.engine)
 
@@ -24,6 +24,10 @@ class TestPermissionRepository(TestCase):
             session.exec(statement)
             session.commit()
         session.commit()
+        
+    @classmethod
+    def tearDownClass(cls):
+        cls.engine.dispose()
     
     def test_create(self):
         permission = Permission(permission=PermissionType.CREATE_INVOICE)
