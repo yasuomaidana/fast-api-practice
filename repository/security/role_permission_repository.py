@@ -29,7 +29,7 @@ class RolePermissionRepository:
     def _create(self, role_permission: RolePermission, session: Session = None):
         return session.add(role_permission)
 
-    def get(self, role: int | Role, permission: int | Role, session: Session = None) -> RolePermission | None:
+    def get_role_permission(self, role: int | Role, permission: int | Role, session: Session = None) -> RolePermission | None:
 
         role_id = role if isinstance(role, int) else role.id
         permission_id = permission if isinstance(permission, int) else permission.id
@@ -43,6 +43,20 @@ class RolePermissionRepository:
             RolePermission.permission_id == permission_id
         ).options(
             joinedload(RolePermission.role),
-            joinedload(RolePermission.permission)
+            joinedload(RolePermission.permission),
         )
-        return session.exec(statement).first()
+        return session.exec(statement).one_or_none()
+    
+    def get_role_permissions(self, role: int | Role, session: Session = None) -> list[RolePermission] | None:
+        role_id = role if isinstance(role, int) else role.id
+        return self._get_role_permissions(role_id, session=session)
+    
+    @with_session
+    def _get_role_permissions(self, role_id: int, session: Session = None) -> list[RolePermission] | None:
+        statement = select(RolePermission).where(RolePermission.role_id == role_id).options(
+            joinedload(RolePermission.permission),
+            joinedload(RolePermission.role)
+        )
+        
+        return session.exec(statement).all()
+        

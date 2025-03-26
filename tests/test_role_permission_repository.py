@@ -1,8 +1,7 @@
 import os
-import unittest
 from unittest import TestCase, mock
 
-from sqlalchemy import create_engine, StaticPool
+from sqlalchemy import create_engine
 from sqlmodel import SQLModel, Session, delete
 
 from models import RolePermission, Role, Permission
@@ -43,7 +42,7 @@ class TestRolePermissionRepository(TestCase):
         read_permission = self.permission_repository.get(PermissionType.READ_INVOICE)
         admin_role = self.role_repository.get(RoleType.ADMIN)
         self.repository.create(admin_role, read_permission, session=None)
-        admin_read = self.repository.get(admin_role.id, read_permission.id)
+        admin_read = self.repository.get_role_permission(admin_role.id, read_permission.id)
         self.assertIsNotNone(admin_read)
         self.assertEqual(admin_read.role, admin_role)
         # self.assertEqual(admin_read.permission, read_permission)
@@ -55,8 +54,29 @@ class TestRolePermissionRepository(TestCase):
             self.repository.create(admin_role, read_permission, session=session)
             session.commit()
         with Session(self.engine) as session:
-            admin_read = self.repository.get(admin_role.id, read_permission.id, session=session)
+            admin_read = self.repository.get_role_permission(admin_role.id, read_permission.id, session=session)
 
         self.assertIsNotNone(admin_read)
         self.assertEqual(admin_read.role, admin_role)
         # self.assertEqual(admin_read.permission, read_permission)
+        
+    def test_get_role_permissions(self):
+        read_invoice = self.permission_repository.get(PermissionType.READ_INVOICE)
+        create_invoice = self.permission_repository.get(PermissionType.CREATE_INVOICE)
+        delete_invoice = self.permission_repository.get(PermissionType.DELETE_INVOICE)
+
+        admin_role = self.role_repository.get(RoleType.ADMIN)
+        user_role = self.role_repository.get(RoleType.USER)
+        
+        self.repository.create(admin_role, read_invoice)
+        self.repository.create(admin_role, create_invoice)
+        self.repository.create(user_role, delete_invoice)
+        
+        
+        admin_permissions = self.repository.get_role_permissions(admin_role)
+        self.assertEqual(len(admin_permissions), 2)
+        
+        user_permissions = self.repository.get_role_permissions(user_role)
+        self.assertEqual(len(user_permissions), 1)
+        
+        
