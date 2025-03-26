@@ -17,11 +17,10 @@ class RolePermissionRepository:
         return cls._instance
 
     def create(self, role: int | Role, permission: int | Permission, session: Session = None):
-        if isinstance(role, int):
-            role = Role(id=role)
-        if isinstance(permission, int):
-            permission = Permission(id=permission)
-        role_permission = RolePermission(role_id=role.id, permission_id=permission.id)
+        role_id = role if isinstance(role, int) else role.id
+        permission_id = permission if isinstance(permission, int) else permission.id
+        
+        role_permission = RolePermission(role_id=role_id, permission_id=permission_id)
         self._create(role_permission, session=session)
         return role_permission
 
