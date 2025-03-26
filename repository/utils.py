@@ -105,3 +105,22 @@ def create_entity(func):
         func(self, to_store, session=session)
 
     return wrapper
+
+
+def ids_extractor(to_extract: int | SQLModel | list[int] | list[SQLModel]) -> list[int]:
+    """
+    Extracts the ids from the provided entities.
+
+    Args:
+        to_extract (int | SQLModel | list[int] | list[SQLModel]): The entity or entities to extract the ids from.
+
+    Returns:
+        list[int]: The extracted ids.
+    """
+    if isinstance(to_extract, list) and isinstance(to_extract[0], int):
+        return to_extract
+    if isinstance(to_extract, int):
+        return [to_extract]
+    if isinstance(to_extract, SQLModel):
+        return [to_extract.id]
+    return [entity.id for entity in to_extract]
