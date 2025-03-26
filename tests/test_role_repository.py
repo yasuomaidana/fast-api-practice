@@ -5,7 +5,7 @@ from sqlmodel import SQLModel, Session, delete, create_engine
 
 from models import Role
 from models.security.role.role_type import RoleType
-from repository.security.role_repository import RoleRepository
+from repository import RoleRepository
 from settings import DatabaseSettings
 
 
@@ -36,8 +36,7 @@ class TestRoleRepository(TestCase):
             
     def test_create_annotated(self):
         role_type = RoleType.ADMIN
-        role = Role(role=role_type)
-        self.repository.create(role, session=None)
+        role = self.repository.create(role_type, session=None)
         self.assertIsNotNone(role.id)
         
     def test_get(self):
