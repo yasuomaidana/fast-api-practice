@@ -1,2 +1,3 @@
 from .place_repository import PlaceRepository
 from .security import RoleRepository, PermissionRepository
+from .account_role_repository import AccountRoleRepository
