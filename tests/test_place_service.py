@@ -45,12 +45,13 @@ class TestPlaceService(TestCase):
             to_create2 = Place(name="test", place_type=PlaceType.STORE)
             place_service.create(to_create2)
 
-    def test__create_no_refresh(self):
+    def test__create_with_session(self):
         place_service = PlaceService(self.engine)
         with Session(self.engine) as session:
             to_create = Place(name="test", place_type=PlaceType.STORE)
             place_service.create(to_create, session)
-            self.assertIsNone(to_create.id)
-            session.commit()
-            session.refresh(to_create)
+            # given how I changed the annotation, now it always refresh by default
+            # self.assertIsNone(to_create.id)
+            # session.commit()
+            # session.refresh(to_create)
             self.assertIsNotNone(to_create.id)
