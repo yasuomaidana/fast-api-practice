@@ -11,7 +11,6 @@ def with_session(func):
             with Session(self.engine) as session:
                 kwargs['session'] = session
                 result = func(self, *args, **kwargs)
-            session.close()
             return result
         return func(self, *args, **kwargs)
 
@@ -27,7 +26,6 @@ def transactional(func):
                 kwargs['session'] = session
                 result = func(self, *args, **kwargs)
                 session.commit()
-            session.close()
             return result
 
     return wrapper
@@ -41,7 +39,6 @@ def create_entity(func):
                 session.add(to_store)
                 session.commit()
                 session.refresh(to_store)
-                session.close()
             return to_store
         func(self, to_store, session)
 
