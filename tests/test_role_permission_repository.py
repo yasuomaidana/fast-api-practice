@@ -11,6 +11,7 @@ from repository import RoleRepository, PermissionRepository
 from repository.security.role_permission_repository import RolePermissionRepository
 from settings import DatabaseSettings
 
+
 class TestRolePermissionRepository(TestCase):
 
     @classmethod
@@ -23,13 +24,17 @@ class TestRolePermissionRepository(TestCase):
         cls.repository = RolePermissionRepository(cls.engine)
 
     def setUp(self):
-        # Clean up the database
-        self.role_repository.create(RoleType.ADMIN)
-        self.role_repository.create(RoleType.USER)
-        self.permission_repository.create(PermissionType.CREATE_INVOICE)
-        self.permission_repository.create(PermissionType.DELETE_INVOICE)
-        self.permission_repository.create(PermissionType.READ_INVOICE)
-        self.permission_repository.create(PermissionType.UPDATE_INVOICE)
+        self.permission_repository.engine = self.engine
+        self.role_repository.engine = self.engine
+        self.repository.engine = self.engine
+        with Session(self.engine) as session:
+            self.role_repository.create(RoleType.ADMIN, session=session)
+            self.role_repository.create(RoleType.USER, session=session)
+            self.permission_repository.create(PermissionType.CREATE_INVOICE, session=session)
+            self.permission_repository.create(PermissionType.DELETE_INVOICE, session=session)
+            self.permission_repository.create(PermissionType.READ_INVOICE, session=session)
+            self.permission_repository.create(PermissionType.UPDATE_INVOICE, session=session)
+            session.commit()
 
     def tearDown(self):
         # Clean up the database
@@ -41,42 +46,65 @@ class TestRolePermissionRepository(TestCase):
     def test_create(self):
         read_permission = self.permission_repository.get(PermissionType.READ_INVOICE)
         admin_role = self.role_repository.get(RoleType.ADMIN)
+
         self.repository.create(admin_role, read_permission, session=None)
-        admin_read = self.repository.get_role_permission(admin_role.id, read_permission.id)
-        self.assertIsNotNone(admin_read)
-        self.assertEqual(admin_read.role, admin_role)
-        # self.assertEqual(admin_read.permission, read_permission)
-        
-    def test_get_joined(self):
+        with Session(self.engine) as session:
+            updated_admin = self.role_repository.get(RoleType.ADMIN, session=session)
+            session.refresh(updated_admin, ["permissions"])
+        session.close()
+
+        self.assertEqual(len(updated_admin.permissions), 1)
+        self.assertEqual(updated_admin.permissions[0], read_permission)
+
+    def test_non_annotated(self):
         read_permission = self.permission_repository.get(PermissionType.READ_INVOICE)
         admin_role = self.role_repository.get(RoleType.ADMIN)
+        self.repository.create(admin_role.id, read_permission.id, session=None)
+        created = self.repository.get(admin_role.id, read_permission.id, session=None)
+        self.assertIsNotNone(created)
+
+    def test_create_from_permissions(self):
+        admin_role = self.role_repository.get(RoleType.ADMIN)
         with Session(self.engine) as session:
-            self.repository.create(admin_role, read_permission, session=session)
+            read_permission = self.permission_repository.get(PermissionType.READ_INVOICE, session=session)
+            read_permission.roles = [admin_role]
+            session.add(read_permission)
             session.commit()
+            session.refresh(read_permission, ["roles"])
+        self.assertEqual(len(read_permission.roles), 1)
+
+    def test_create_from_roles(self):
+        read_permission = self.permission_repository.get(PermissionType.READ_INVOICE)
         with Session(self.engine) as session:
-            admin_read = self.repository.get_role_permission(admin_role.id, read_permission.id, session=session)
+            admin_role = self.role_repository.get(RoleType.ADMIN, session=session)
+            admin_role.permissions = [read_permission]
+            session.add(admin_role)
+            session.commit()
+            session.refresh(admin_role, ["permissions"])
+        session.close()
+        stored = self.repository.get(admin_role, read_permission, session=None)
+        self.assertIsNotNone(stored)
 
-        self.assertIsNotNone(admin_read)
-        self.assertEqual(admin_read.role, admin_role)
-        # self.assertEqual(admin_read.permission, read_permission)
-        
-    def test_get_role_permissions(self):
-        read_invoice = self.permission_repository.get(PermissionType.READ_INVOICE)
-        create_invoice = self.permission_repository.get(PermissionType.CREATE_INVOICE)
-        delete_invoice = self.permission_repository.get(PermissionType.DELETE_INVOICE)
-
+    def test_assign_multiple_roles_to_permission(self):
         admin_role = self.role_repository.get(RoleType.ADMIN)
         user_role = self.role_repository.get(RoleType.USER)
+
+        with Session(self.engine) as session:
+            read_permission = self.permission_repository.get(PermissionType.READ_INVOICE, session=session)
+            read_permission.roles.extend([admin_role, user_role])
+            session.refresh(read_permission, ["roles"])
+        self.assertEqual(len(read_permission.roles), 2)
         
-        self.repository.create(admin_role, read_invoice)
-        self.repository.create(admin_role, create_invoice)
-        self.repository.create(user_role, delete_invoice)
-        
-        
-        admin_permissions = self.repository.get_role_permissions(admin_role)
-        self.assertEqual(len(admin_permissions), 2)
-        
-        user_permissions = self.repository.get_role_permissions(user_role)
-        self.assertEqual(len(user_permissions), 1)
-        
-        
+    def test_assign_multiple_permissions_to_role(self):
+        read_permission = self.permission_repository.get(PermissionType.READ_INVOICE)
+        delete_permission = self.permission_repository.get(PermissionType.DELETE_INVOICE)
+        admin_role = self.role_repository.get(RoleType.ADMIN)
+
+        with Session(self.engine) as session:
+            self.repository.create(admin_role.id, read_permission.id, session=session)
+            self.repository.create(admin_role.id, delete_permission.id, session=session)
+            session.commit()
+        with Session(self.engine) as session:
+            admin_role = self.role_repository.get(RoleType.ADMIN, session=session)
+            session.refresh(admin_role, ["permissions"])
+        self.assertEqual(len(admin_role.permissions), 2)
