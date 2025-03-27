@@ -123,7 +123,6 @@ class TestAccountRoleRepository(TestCase):
         self.assertEqual(len(account_role), 2)
         with Session(self.engine) as session:
             account_admin_role = self.account_role_repository.get(self.user1.id,self.user_role, session=session)
-            print(account_admin_role)
             session.delete(account_admin_role)
             session.commit()
         with Session(self.engine) as session:

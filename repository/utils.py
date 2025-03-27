@@ -73,6 +73,7 @@ def refreshable(func):
     """
 
     @wraps(func)
+    @with_session
     def wrapper(self, to_refresh: SQLModel, *args, attribute_names: list = None, **kwargs):
         func(self, to_refresh, *args, **kwargs)
         kwargs['session'].refresh(to_refresh, attribute_names=attribute_names)
@@ -98,7 +99,6 @@ def create_entity(func):
     """
 
     @wraps(func)
-    @with_session
     @refreshable
     @transactional
     def wrapper(self, to_store: SQLModel, session: Session = None):
