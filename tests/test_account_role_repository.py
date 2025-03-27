@@ -151,3 +151,5 @@ class TestAccountRoleRepository(TestCase):
         stored_account_role = self.account_role_repository.get_refreshed(Account(id=self.user2.id),
                                                                          Role(id=self.user_role.id))
         self.assertIsNone(stored_account_role)
+        user_role = self.role_repository.get(self.user_role.role)
+        self.assertIsNotNone(user_role)
