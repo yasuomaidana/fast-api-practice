@@ -2,7 +2,7 @@ from sqlalchemy import Engine
 from sqlmodel import Session, select
 
 from models import Account
-from repository.utils import create_entity, with_session
+from repository.utils import create_entity, with_session, transactional
 from settings import engine
 
 
@@ -27,6 +27,6 @@ class AccountRepository:
     def find_by_username(self, username: str, session: Session = None) -> Account | None:
         return session.exec(select(Account).where(Account.username == username)).first()
     
-    @with_session
+    @transactional
     def delete(self, account: Account, session: Session = None):
         return session.delete(account)
