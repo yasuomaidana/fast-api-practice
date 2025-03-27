@@ -88,13 +88,13 @@ class TestAccountRoleRepository(TestCase):
             session.commit()
             session.refresh(user_1, ["roles"])
         self.assertEqual(len(user_1.roles), 1)
-    
+
     def test_create_with_repository(self):
         account_role = self.account_role_repository.create(self.user1, [self.user_role.id])
         self.assertEqual(len(account_role), 1)
         account_roles = self.account_role_repository.create(self.user2, [self.admin_role, self.user_role])
         self.assertEqual(len(account_roles), 2)
-        
+
     def test_delete_user(self):
         account_role = self.account_role_repository.create(self.user1, self.user_role.id)
         self.account_role_repository.create(self.user2, self.user_role.id)
@@ -116,13 +116,13 @@ class TestAccountRoleRepository(TestCase):
             statement = select(Account)
             accounts = session.exec(statement).all()
             self.assertEqual(len(accounts), 1)
-            
+
     def test_delete_role(self):
         account_role = self.account_role_repository.create(self.user1, [self.user_role.id, self.admin_role.id])
         self.account_role_repository.create(self.user2, self.user_role.id)
         self.assertEqual(len(account_role), 2)
         with Session(self.engine) as session:
-            account_admin_role = self.account_role_repository.get(self.user1.id,self.user_role, session=session)
+            account_admin_role = self.account_role_repository.get(self.user1.id, self.user_role, session=session)
             session.delete(account_admin_role)
             session.commit()
         with Session(self.engine) as session:
@@ -132,14 +132,22 @@ class TestAccountRoleRepository(TestCase):
             statement = select(Role)
             roles = session.exec(statement).all()
             self.assertEqual(len(roles), 2)
-            
+
         role = self.role_repository.get(self.user_role.role)
         self.assertIsNotNone(role)
         user = self.account_repository.find_by_id(self.user1.id)
         self.assertIsNotNone(user)
         with Session(self.engine) as session:
-            account_admin_role = self.account_role_repository.get(user,role, session=session)
+            account_admin_role = self.account_role_repository.get(user, role, session=session)
             self.assertIsNone(account_admin_role)
-            
-        
-        
+
+    def test_get_refreshed(self):
+        self.account_role_repository.create(self.user2, self.user_role.id)
+        stored_account_role = self.account_role_repository.get_refreshed(Account(id=self.user2.id),
+                                                                         Role(id=self.user_role.id))
+        self.assertIsNotNone(stored_account_role)
+        self.assertEqual(stored_account_role.account, self.user2)
+        self.account_repository.delete(stored_account_role.account)
+        stored_account_role = self.account_role_repository.get_refreshed(Account(id=self.user2.id),
+                                                                         Role(id=self.user_role.id))
+        self.assertIsNone(stored_account_role)
