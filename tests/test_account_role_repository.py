@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase, mock
 
-from sqlmodel import create_engine, SQLModel, Session, delete
+from sqlmodel import create_engine, SQLModel, Session, delete, select
 
 from models import Role, Permission, RolePermission, Account, AccountRole
 from models.security.permission.permission_type import PermissionType
@@ -94,4 +94,53 @@ class TestAccountRoleRepository(TestCase):
         self.assertEqual(len(account_role), 1)
         account_roles = self.account_role_repository.create(self.user2, [self.admin_role, self.user_role])
         self.assertEqual(len(account_roles), 2)
+        
+    def test_delete_user(self):
+        account_role = self.account_role_repository.create(self.user1, self.user_role.id)
+        self.account_role_repository.create(self.user2, self.user_role.id)
+        self.assertEqual(len(account_role), 1)
+        with Session(self.engine) as session:
+            user_roles: Account = self.account_repository.find_by_id(self.user1.id, session=session)
+            self.assertEqual(len(user_roles.roles), 1)
+            session.delete(user_roles)
+            session.commit()
+        user_roles = self.role_repository.get(self.user_role.role)
+        self.assertIsNotNone(user_roles)
+        with Session(self.engine) as session:
+            statement = select(AccountRole)
+            account_roles = session.exec(statement).all()
+            self.assertEqual(len(account_roles), 1)
+            statement = select(Permission)
+            permissions = session.exec(statement).all()
+            self.assertEqual(len(permissions), 4)
+            statement = select(Account)
+            accounts = session.exec(statement).all()
+            self.assertEqual(len(accounts), 1)
+            
+    def test_delete_role(self):
+        account_role = self.account_role_repository.create(self.user1, [self.user_role.id, self.admin_role.id])
+        self.account_role_repository.create(self.user2, self.user_role.id)
+        self.assertEqual(len(account_role), 2)
+        with Session(self.engine) as session:
+            account_admin_role = self.account_role_repository.get(self.user1.id,self.user_role, session=session)
+            print(account_admin_role)
+            session.delete(account_admin_role)
+            session.commit()
+        with Session(self.engine) as session:
+            statement = select(Permission)
+            permissions = session.exec(statement).all()
+            self.assertEqual(len(permissions), 4)
+            statement = select(Role)
+            roles = session.exec(statement).all()
+            self.assertEqual(len(roles), 2)
+            
+        role = self.role_repository.get(self.user_role.role)
+        self.assertIsNotNone(role)
+        user = self.account_repository.find_by_id(self.user1.id)
+        self.assertIsNotNone(user)
+        with Session(self.engine) as session:
+            account_admin_role = self.account_role_repository.get(user,role, session=session)
+            self.assertIsNone(account_admin_role)
+            
+        
         

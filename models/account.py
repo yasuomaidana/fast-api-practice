@@ -13,7 +13,7 @@ class Account(SQLModel, table=True):
     email: EmailStr
     password: str
     
-    roles: list["AccountRole"] = Relationship(back_populates="account")
+    roles: list["AccountRole"] = Relationship(back_populates="account", cascade_delete=True)
     
 
     __table_args__ = (UniqueConstraint("username"),UniqueConstraint("email"))
