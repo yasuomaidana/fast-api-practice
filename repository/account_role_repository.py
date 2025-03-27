@@ -2,7 +2,7 @@ from sqlalchemy import Engine
 from sqlmodel import Session, select
 
 from models import AccountRole, Account, Role
-from repository.utils import create_entity, ids_extractor, with_session
+from repository.utils import create_entity, ids_extractor, with_session, refresh_output
 from settings import engine
 
 
@@ -39,5 +39,20 @@ class AccountRoleRepository:
         statement = select(AccountRole).where(
             (AccountRole.account_id == account_role.account_id) &
             (AccountRole.role_id == account_role.role_id)
+        )
+        return session.exec(statement).first()
+
+    def get_refreshed(self, account: int | Account, role: int | Role, session: Session = None,
+                      attribute_names: list[str] = ["account"]) -> AccountRole | None:
+        account = account if isinstance(account, Account) else Account(id=account)
+        role = role if isinstance(role, Role) else Role(id=role)
+        return self._get_refreshed(account, role, session=session, attribute_names=attribute_names)
+
+    @refresh_output
+    def _get_refreshed(self, account: Account, role: Role, session: Session = None,
+                       attribute_names: list[str] = ["account"]) -> AccountRole | None:
+        statement = select(AccountRole).where(
+            (AccountRole.account_id == account.id) &
+            (AccountRole.role_id == role.id)
         )
         return session.exec(statement).first()
