@@ -36,6 +36,8 @@ class AccountRoleRepository:
 
     @with_session
     def _get(self, account_role: AccountRole, session: Session = None) -> AccountRole | None:
-        statement = select(AccountRole).where(AccountRole.account_id == account_role.account_id).where(
-            AccountRole.role_id == account_role.role_id)
+        statement = select(AccountRole).where(
+            (AccountRole.account_id == account_role.account_id) &
+            (AccountRole.role_id == account_role.role_id)
+        )
         return session.exec(statement).first()
