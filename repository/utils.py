@@ -26,7 +26,7 @@ def with_session(func):
             with Session(self.engine) as session:
                 kwargs['session'] = session
                 result = func(self, *args, **kwargs)
-            return result
+                return result
         return func(self, *args, **kwargs)
 
     return wrapper
@@ -57,7 +57,7 @@ def transactional(func):
     return wrapper
 
 
-def refreshable(func):
+def refreshable(func) -> SQLModel:
     """
     Decorator to refresh an entity after a function call.
 
@@ -78,6 +78,19 @@ def refreshable(func):
         func(self, to_refresh, *args, **kwargs)
         kwargs['session'].refresh(to_refresh, attribute_names=attribute_names)
         return to_refresh
+
+    return wrapper
+
+
+def refresh_output(func) -> SQLModel:
+    @wraps(func)
+    @with_session
+    def wrapper(self, *args, attribute_names: list[str] = None, **kwargs):
+        result = func(self, *args, **kwargs)
+        if result is None:
+            return None
+        kwargs['session'].refresh(result, attribute_names=attribute_names)
+        return result
 
     return wrapper
 
